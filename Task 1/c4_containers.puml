@@ -1,0 +1,55 @@
+@startuml
+!theme sketchy
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Container.puml
+
+title Диаграмма контейнеров системы "Будущее 2.0"
+
+Person(operator, "Оператор в клинике", "Оператор, работающий с клиентским интерфейсом")
+Person(analyst, "Аналитик", "Сотрудник, работающий с BI-системой")
+Person(manager, "Менеджер", "Менеджер, использующий внутренние сервисы")
+
+System_Boundary(company, "Компания «Будущее 2.0»") {
+    Container(s3, "S3 хранилище", "MinIO", "Хранилище данных в формате S3")
+    Container(catalog_nessie, "Каталог данных", "Nessie", "Управление версиями данных")
+    Container(query_engine, "Движок запросов", "Dremio", "Обработка SQL-запросов к данным")
+    Container(airflow, "Apache Airflow", "Apache Airflow", "Оркестрация ETL-процессов")
+    Container(legacy_dwh, "Legacy DWH", "MS SQL-сервер 2008", "Устаревшее хранилище данных")
+    Container(catalog_datahub, "Каталог данных", "DataHub", "Метаданные и управление данными")
+    Container(api_gateway, "API Gateway", "Nginx", "Единая точка входа для API")
+    Container(auth_service, "Сервис аутентификации", "Keycloak", "Управление доступом")
+    Container(client_ui, "Клиентский интерфейс", "Power Builder", "UI для операторов")
+    Container(bi_system, "BI-система", "Power BI", "Аналитика и визуализация данных")
+    Container(internal_services, "Внутренние сервисы", "Java/Spring", "Сервисы для менеджеров")
+}
+
+System_Ext(ai_services, "ИИ-сервисы", "Внешние ИИ-сервисы")
+System_Ext(fintech_services, "Финтех-сервисы", "Внешние платежные системы")
+
+Rel(operator, client_ui, "Работа с данными клиентов", "HTTP")
+Rel(analyst, bi_system, "Анализ данных", "HTTP")
+Rel(manager, internal_services, "Управление процессами", "HTTP")
+
+Rel(bi_system, query_engine, "Запросы данных", "JDBC")
+Rel(bi_system, auth_service, "Аутентификация", "OAuth2")
+
+Rel(client_ui, legacy_dwh, "Чтение/запись данных", "ODBC")
+Rel(client_ui, auth_service, "Аутентификация", "OAuth2")
+
+Rel(airflow, legacy_dwh, "ETL-процессы", "SQL")
+Rel(airflow, query_engine, "Управление задачами", "REST")
+
+Rel(query_engine, catalog_nessie, "Метаданные", "REST")
+Rel(query_engine, s3, "Чтение/запись данных", "S3 API")
+
+Rel(api_gateway, catalog_datahub, "Доступ к метаданным", "REST")
+Rel(api_gateway, auth_service, "Аутентификация", "OAuth2")
+
+Rel(catalog_datahub, query_engine, "Синхронизация метаданных", "REST")
+Rel(catalog_datahub, auth_service, "Аутентификация", "OAuth2")
+
+Rel(ai_services, api_gateway, "Интеграция", "REST/HTTPS")
+Rel(fintech_services, api_gateway, "Платежи", "REST/HTTPS")
+
+Rel(internal_services, api_gateway, "Вызов API", "REST")
+
+@enduml

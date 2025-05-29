@@ -1,0 +1,18 @@
+@startuml
+title DFD диаграмма взаимодействия доменов
+
+rectangle "Клиентский домен" as client_domain 
+rectangle "Финансовый домен" as finance_domain 
+rectangle "Медицинский домен" as medical_domain 
+rectangle "Домен бизнес-аналитики" as bi_domain 
+rectangle "Домен искусственного интеллекта" as ai_domain 
+
+medical_domain --> ai_domain : Медицинские данные для анализа и результаты исследований 
+medical_domain --> bi_domain : Медицинские данные для анализа и результаты исследований
+client_domain --> finance_domain : Данные и запросы о финансовых операциях
+client_domain --> medical_domain : Данные пациентов и запросы на мед. услуги
+client_domain --> bi_domain : Данные для визуализации, анализа и отчётности 
+finance_domain --> bi_domain : Данные для визуализации, анализа и отчётности
+ai_domain --> bi_domain : Данные для визуализации, анализа и отчётности
+ai_domain -->  medical_domain : Предсказания диагноза
+@enduml
